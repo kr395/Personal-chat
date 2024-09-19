@@ -4,7 +4,6 @@ function App() {
   return (
     <>
       <Room/>
-      <h1>hello</h1>
       
     </>
   );
