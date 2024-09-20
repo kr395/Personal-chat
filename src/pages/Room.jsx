@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Trash2 } from "react-feather";
-import {
+import client, {
   databases,
   PROJECT_ID,
   DATABASE_ID,
@@ -14,7 +14,47 @@ const Room = () => {
   const [messageBody, setMessageBody] = useState("");
   // This function is called when the component mounts
   useEffect(() => {
-    getMessages();
+     getMessages();
+
+     const unsubscribe = client.subscribe(
+      `databases.${DATABASE_ID}.collections.${COLLECTION_ID_MESSAGES}.documents`,
+      (response) => {
+        // Callback will be executed on changes for documents A and all files.
+        console.log("REALTIME RES", response);
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.create"
+          )
+        ) {
+          // console.log("REALTIME ITEM CREATED");
+          setMessages(prevState => [response.payload, ...prevState]);
+
+        }
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.delete"
+          )
+        ) {
+          // console.log("REALTIME ITEM DELETED");
+          setMessages((prevState) =>
+            prevState.filter((message) => message.$id !== response.payload.id)
+          );
+          getMessages()
+        }
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.update"
+          )
+        ) {
+          // console.log("REALTIME ITEM UPDATED");
+        }
+      }
+    );
+
+    return () => {
+      // console.log("unsubscribe called");
+      unsubscribe();
+    }
   }, []);
 
   // This function is used for getting the messages from database using appwrite
@@ -22,11 +62,11 @@ const Room = () => {
     const response = await databases.listDocuments(
       DATABASE_ID,
       COLLECTION_ID_MESSAGES,
-      [Query.orderDesc("$createdAt"), Query.limit(20)]
+      [Query.orderDesc("$createdAt"), Query.limit(20)] 
     );
-
-    console.log(response);
+    // console.log("getMessages Called");
     setMessages(response.documents);
+    // console.log(response);
   };
 
   //This function handles the chat submission
@@ -42,21 +82,15 @@ const Room = () => {
       ID.unique(),
       payload
     );
-    console.log("Msg Created : ", response);
-    setMessages([...messages, response]);
+    // console.log("Msg Created : ", response);
+    // setMessages([...messages, response]);
     setMessageBody("");
   };
   // This Function deletes the message
-  const deleteMessage = async (messageId) => {
-    const response = await databases.deleteDocument(
-      DATABASE_ID,
-      COLLECTION_ID_MESSAGES,
-      messageId
-    );
-    setMessages((prevMsg) =>
-      messages.filter((message) => message.$id !== messageId)
-    );
-  };
+  const deleteMessage = async (id) => {
+    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID_MESSAGES, id);
+    //setMessages(prevState => prevState.filter(message => message.$id !== message_id))
+ } 
 
   return (
     <main className="container">
@@ -83,9 +117,7 @@ const Room = () => {
                   {new Date(message.$createdAt).toLocaleString()}
                 </small>
 
-                <Trash2 
-                className="delete--btn"
-                onClick={() => deleteMessage(message.$id)} />
+                 <Trash2 className="delete--btn" onClick={() => {deleteMessage(message.$id)}}/>
               </div>
               <div className="message--body">
                 <span>{message.body}</span>
