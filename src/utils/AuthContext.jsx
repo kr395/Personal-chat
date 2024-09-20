@@ -10,8 +10,20 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // user login
+  const handleUserLogin = async (e, credentials) => {
+     e.preventDefault();
+     try {
+      
+     } catch (error) {
+      console.log("handleuserlogin error", error);
+     }
+  };
+
   const contextData = {
-    user : user
+    user,
+    handleUserLogin,
+    
   };
   return (
     <AuthContext.Provider value={contextData}>
