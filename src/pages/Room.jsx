@@ -6,17 +6,20 @@ import client, {
   DATABASE_ID,
   COLLECTION_ID_MESSAGES,
 } from "../appwriteConfig";
-import { ID, Query } from "appwrite";
+import { ID, Query, Role, Permission } from "appwrite";
+import Header from "../Components/Header";
+import { useAuth } from "../utils/AuthContext";
 
 const Room = () => {
   //useState Hooks
   const [messages, setMessages] = useState([]);
   const [messageBody, setMessageBody] = useState("");
+  const  {user} = useAuth();
   // This function is called when the component mounts
   useEffect(() => {
-     getMessages();
+    getMessages();
 
-     const unsubscribe = client.subscribe(
+    const unsubscribe = client.subscribe(
       `databases.${DATABASE_ID}.collections.${COLLECTION_ID_MESSAGES}.documents`,
       (response) => {
         // Callback will be executed on changes for documents A and all files.
@@ -27,8 +30,7 @@ const Room = () => {
           )
         ) {
           // console.log("REALTIME ITEM CREATED");
-          setMessages(prevState => [response.payload, ...prevState]);
-
+          setMessages((prevState) => [response.payload, ...prevState]);
         }
         if (
           response.events.includes(
@@ -39,7 +41,7 @@ const Room = () => {
           setMessages((prevState) =>
             prevState.filter((message) => message.$id !== response.payload.id)
           );
-          getMessages()
+          getMessages();
         }
         if (
           response.events.includes(
@@ -54,7 +56,7 @@ const Room = () => {
     return () => {
       // console.log("unsubscribe called");
       unsubscribe();
-    }
+    };
   }, []);
 
   // This function is used for getting the messages from database using appwrite
@@ -62,7 +64,7 @@ const Room = () => {
     const response = await databases.listDocuments(
       DATABASE_ID,
       COLLECTION_ID_MESSAGES,
-      [Query.orderDesc("$createdAt"), Query.limit(20)] 
+      [Query.orderDesc("$createdAt"), Query.limit(20)]
     );
     // console.log("getMessages Called");
     setMessages(response.documents);
@@ -74,13 +76,20 @@ const Room = () => {
     e.preventDefault();
 
     const payload = {
+      user_id : user.$id,
+      username : user.name,
       body: messageBody,
     };
+    let permissions = [
+      Permission.write(Role.user(user.$id)),
+    ];
+
     let response = await databases.createDocument(
       DATABASE_ID,
       COLLECTION_ID_MESSAGES,
       ID.unique(),
-      payload
+      payload,
+      permissions
     );
     // console.log("Msg Created : ", response);
     // setMessages([...messages, response]);
@@ -90,10 +99,11 @@ const Room = () => {
   const deleteMessage = async (id) => {
     await databases.deleteDocument(DATABASE_ID, COLLECTION_ID_MESSAGES, id);
     //setMessages(prevState => prevState.filter(message => message.$id !== message_id))
- } 
+  };
 
   return (
     <main className="container">
+      <Header />
       <div className="room--container">
         <form onSubmit={handleSubmit} id="message--form" action="">
           <div>
@@ -113,11 +123,25 @@ const Room = () => {
           {messages.map((message) => (
             <div key={message.$id} className="message--wrapper">
               <div className="message--header">
+                <p>
+                  {message?.username? (
+                    <span>{message.username}</span>
+                  ) : (
+                    <span>Anonymous User</span>
+                  )}
+                </p>
                 <small className="message-timestamp">
                   {new Date(message.$createdAt).toLocaleString()}
                 </small>
+                {message.$permissions.includes(`delete(\"user:${user.$id}\")`) && (
 
-                 <Trash2 className="delete--btn" onClick={() => {deleteMessage(message.$id)}}/>
+                <Trash2
+                  className="delete--btn"
+                  onClick={() => {
+                    deleteMessage(message.$id);
+                  }}
+                />
+                )}
               </div>
               <div className="message--body">
                 <span>{message.body}</span>

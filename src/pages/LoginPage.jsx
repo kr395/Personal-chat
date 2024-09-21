@@ -1,13 +1,13 @@
 import React, { useEffect,useState } from "react";
 import { useAuth } from "../utils/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const { user, handleUserLogin } = useAuth();
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   useEffect(() => {
-    if (!user) {
+    if (user) {
       navigate("/");
     }
   }, []);
@@ -16,7 +16,7 @@ const LoginPage = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCredentials({ ...credentials, [name]: value });
-    console.log(credentials);
+    // console.log(credentials);
   };
 
   return (
@@ -29,7 +29,7 @@ const LoginPage = () => {
               type="email"
               required
               name="email"
-              placeholder="Enter Your Email.."
+              placeholder="Enter Your Email."
               value={credentials.email}
               onChange={handleInputChange}
             />
@@ -40,7 +40,7 @@ const LoginPage = () => {
               type="password"
               required
               name="password"
-              placeholder="Enter Password.."
+              placeholder="Enter Password."
               value={credentials.password}
               onChange={handleInputChange}
             />
@@ -49,7 +49,9 @@ const LoginPage = () => {
               <input className="btn btn--lg btn--main" type="submit" value="Login" />
           </div>
         </form>
+        <p>Don't have an account? <Link to="/register">Register here</Link></p>
       </div>
+
     </div>
   );
 };
