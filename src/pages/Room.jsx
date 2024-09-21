@@ -16,6 +16,9 @@ const Room = () => {
   const [messageBody, setMessageBody] = useState("");
   const  {user} = useAuth();
   const kr_id = "66ee8a83000b33956b45";
+  const shiv_id = "66eeb5690009d4651a9d";
+  const puthi_id = "66eeabe800036d9baacb";
+  const sutu_id = "66eea4130009f4e35f78";
   // This function is called when the component mounts
   useEffect(() => {
     getMessages();
@@ -144,7 +147,16 @@ const Room = () => {
                 />
                 )}
               </div>
-              <div className="message--body" style={ message.user_id === kr_id ? { backgroundColor: 'steelblue' } : {  }}>
+              
+              <div className="message--body"  style={
+                 message.user_id === kr_id ? { backgroundColor: 'transparent', border: 'solid 3px red' } : 
+                 message.user_id === shiv_id ? { backgroundColor: 'transparent', border: 'solid 3px green' } : 
+                 message.user_id === puthi_id ? { backgroundColor: 'transparent', border: 'solid 3px blue' } : 
+                 message.user_id === sutu_id ? { backgroundColor: 'transparent', border: 'solid 3px gold' } : 
+                 
+                  { backgroundColor: 'transparent', border: 'solid 3px white'}
+                 
+                 }>
                 <span>{message.body}</span>
               </div>
             </div>

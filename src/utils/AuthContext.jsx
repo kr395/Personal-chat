@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
       console.log("GET USER ONLOAD", userDetails);
       setUser(userDetails);
     } catch (error) {
-      console.log("GET USER ONLOAD ERROR", error);
+      // console.log("GET USER ONLOAD ERROR", error);
     }
     setLoading(false);
   };
@@ -38,7 +38,8 @@ export const AuthProvider = ({ children }) => {
       setUser(userDetails);
       navigate("/");
     } catch (error) {
-      console.log("handleuserlogin error", error);
+      // console.log("handleuserlogin error", error);
+      alert("Invalid email or password");
     }
   };
 
