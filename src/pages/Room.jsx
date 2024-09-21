@@ -15,6 +15,7 @@ const Room = () => {
   const [messages, setMessages] = useState([]);
   const [messageBody, setMessageBody] = useState("");
   const  {user} = useAuth();
+  const kr_id = "66ee8a83000b33956b45";
   // This function is called when the component mounts
   useEffect(() => {
     getMessages();
@@ -91,7 +92,7 @@ const Room = () => {
       payload,
       permissions
     );
-    // console.log("Msg Created : ", response);
+    console.log("Msg Created : ", response);
     // setMessages([...messages, response]);
     setMessageBody("");
   };
@@ -121,7 +122,7 @@ const Room = () => {
         </form>
         <div>
           {messages.map((message) => (
-            <div key={message.$id} className="message--wrapper">
+            <div key={message.$id} className={`message--wrapper`}>
               <div className="message--header">
                 <p>
                   {message?.username? (
@@ -143,7 +144,7 @@ const Room = () => {
                 />
                 )}
               </div>
-              <div className="message--body">
+              <div className="message--body" style={ message.user_id === kr_id ? { backgroundColor: 'steelblue' } : {  }}>
                 <span>{message.body}</span>
               </div>
             </div>
