@@ -72,7 +72,12 @@ font-size: 18px;
 text-shadow: none !important;
 }
 
-
+#special-input{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  
+}
 /* Button Styling */
 
 .btn{

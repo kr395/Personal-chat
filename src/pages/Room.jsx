@@ -109,15 +109,17 @@ const Room = () => {
     <main className="container">
       <Header />
       <div className="room--container">
-        <form onSubmit={handleSubmit} id="message--form" action="">
+        <form onSubmit={handleSubmit} id="message--form">
           <div>
-            <textarea
+            <input
+              id="special-input"
+              type="text"
               required
               maxLength={1000}
               placeholder="Say Something..."
               onChange={(e) => setMessageBody(e.target.value)}
               value={messageBody}
-            ></textarea>
+            ></input>
           </div>
           <div className="send-btn--wrapper">
             <input className="btn btn--secondary" type="submit" value="Send" />
@@ -149,6 +151,7 @@ const Room = () => {
               </div>
               
               <div className="message--body"  style={
+                
                  message.user_id === kr_id ? { backgroundColor: 'transparent', border: 'solid 3px red' } : 
                  message.user_id === shiv_id ? { backgroundColor: 'transparent', border: 'solid 3px green' } : 
                  message.user_id === puthi_id ? { backgroundColor: 'transparent', border: 'solid 3px blue' } : 
